@@ -4,7 +4,7 @@ const app = express(); // cria a aplicação Express
 const PORT = 3000; // porta onde o servidor vai rodar localmente
 
 // rota GET na raiz — responde com JSON
-app.get('/', (req, res) => {
+app.get('/status', (req, res) => {
   res.json({ mensagem: 'Yearbook API está no ar! 🎓' });
 });
 
