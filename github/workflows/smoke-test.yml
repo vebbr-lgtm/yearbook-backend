@@ -1,6 +1,10 @@
 name: Smoke Test
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+      - feature/servidor-express
 
 jobs:
   check:
