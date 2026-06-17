@@ -144,3 +144,4 @@ vite.config.ts.timestamp-*
 
 # Environment variables
 .env
+/generated/prisma
