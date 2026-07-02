@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "API REST do Yearbook Digital — IFNMG Salinas 2026",
   "main": "index.js",
-  "type": "modulenpm start",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
