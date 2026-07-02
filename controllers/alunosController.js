@@ -44,31 +44,33 @@ export async function buscarAluno(req, res) {
 // Dica: os dados do aluno vêm de req.body (nome, email, senhaHash, cidade, frase, planosFuturos)
 // Dica: retorne status 201 com o aluno criado
 export async function criarAluno(req, res) {
-  // 1. Extrai os campos enviados no body da requisição
-  const {
-    nome,
-    email,
-    senhaHash,
-    cidade,
-    frase,
-    planosFuturos,
-  } = req.body;
+  try {
+    // 1. Extraia os campos de req.body: nome, email, senhaHash, cidade, frase, planosFuturos
+    const { nome, email, senhaHash, cidade, frase, planosFuturos } = req.body;
 
-  // 2. Cria o aluno no banco
-  const alunoCriado = await prisma.aluno.create({
-    data: {
-      nome,
-      email,
-      senhaHash,
-      cidade,
-      frase,
-      planosFuturos,
-    },
-    select: selectSemSenha,
-  });
+    // 2. Use prisma.aluno.create() com data e select: selectSemSenha
+    // Nota: O await é obrigatório aqui porque a operação no banco é assíncrona
+    const alunoCriado = await prisma.aluno.create({
+      data: {
+        nome,
+        email,
+        senhaHash,
+        cidade,
+        frase,
+        planosFuturos
+      },
+      select: selectSemSenha // Garante que a senhaHash NUNCA seja retornada no JSON
+    });
 
-  // 3. Retorna o aluno criado com status 201 (Created)
-  res.status(201).json(alunoCriado);
+    // 3. Retorne res.status(201).json(alunoCriado)
+    // O status 201 é o padrão HTTP correto para recursos criados com sucesso
+    return res.status(201).json(alunoCriado);
+
+  } catch (error) {
+    // Boa prática: Tratamento básico de erro caso o banco falhe (ex: email duplicado)
+    console.error("Erro ao criar aluno:", error);
+    return res.status(500).json({ erro: "Erro interno ao criar o aluno." });
+  }
 }
 
 // 🎯 PUT /alunos/:id — atualiza um aluno existente
@@ -76,7 +78,32 @@ export async function criarAluno(req, res) {
 // Dica: o id vem de req.params, os dados atualizados de req.body
 // Dica: se o aluno não existir, o Prisma lança um erro — use try/catch
 export async function atualizarAluno(req, res) {
-  // implemente aqui
+  // 1. Extraia o id de req.params
+  const { id } = req.params;
+
+  // 2. Extraia os dados de req.body
+  const dadosAtualizados = req.body;
+
+  // 3. Use try/catch:
+  try {
+    // - No try: prisma.aluno.update() e retorne o aluno atualizado
+    // Lembre-se de converter o id para Number, pois req.params sempre vem como string!
+    const alunoAtualizado = await prisma.aluno.update({
+      where: { 
+        id: Number(id) 
+      },
+      data: dadosAtualizados,
+      select: selectSemSenha // Mantém a segurança para não expor a senhaHash
+    });
+
+    return res.status(200).json(alunoAtualizado);
+
+  } catch (error) {
+    // - No catch: retorne status 404 com { erro: 'Aluno não encontrado' }
+    // Como o Prisma lança um erro quando o ID não existe no .update(), tratamos aqui:
+    console.error("Erro ao atualizar (provável ID inexistente):", error.message);
+    return res.status(404).json({ erro: 'Aluno não encontrado' });
+  }
 }
 
 // 🎯 DELETE /alunos/:id — deleta um aluno
@@ -84,5 +111,26 @@ export async function atualizarAluno(req, res) {
 // Dica: retorne status 204 (sem conteúdo) com res.status(204).end()
 // Dica: se o aluno não existir, o Prisma lança um erro — use try/catch
 export async function deletarAluno(req, res) {
-  // implemente aqui
+  // 1. Extraia o id de req.params
+  const { id } = req.params;
+
+  // 2. Use try/catch:
+  try {
+    // - No try: prisma.aluno.delete() e retorne res.status(204).end()
+    // Lembre-se sempre de converter o id para Number!
+    await prisma.aluno.delete({
+      where: {
+        id: Number(id)
+      }
+    });
+
+    // O status 204 significa "No Content" (Sem Conteúdo). 
+    // Como o aluno foi apagado, não há dados para devolver, por isso usamos o .end() para fechar a resposta.
+    return res.status(204).end();
+
+  } catch (error) {
+    // - No catch: retorne status 404 com { erro: 'Aluno não encontrado' }
+    console.error("Erro ao deletar (provável ID inexistente):", error.message);
+    return res.status(404).json({ erro: 'Aluno não encontrado' });
+  }
 }
