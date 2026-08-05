@@ -1,3 +1,9 @@
+## CORS
+
+Esta API tem CORS habilitado para qualquer origem. Você pode consumi-la
+de qualquer domínio (localhost, Vercel, etc.) sem configuração adicional
+no cliente.
+
 # API do Yearbook — Documentação de Endpoints
 
     Base URL (produção): `https://yearbook-backend.vercel.app`

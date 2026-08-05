@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';                // importa o Express
+import cors from 'cors';
 import logger from './middlewares/logger.js';
 import tratarErro from './middlewares/erro.js';
 import alunosRouter from './routes/alunos.js'; // importa o router de alunos <- NOVO
@@ -8,8 +9,9 @@ import mensagensRouter from './routes/mensagens.js';
 const app = express();      // cria a aplicação Express
 const PORT = process.env.PORT || 3000;          // porta do servidor
 
-app.use(express.json());    // 1º — parseia JSON do body
-app.use(logger);            // 2º — registra log de cada requisição
+app.use(cors());            // 1º — libera CORS para qualquer origem
+app.use(express.json());    // 2º — parseia body JSON
+app.use(logger);            // 3º — registra log
 
 // rota raiz — boas-vindas
 app.get('/', (req, res) => {
